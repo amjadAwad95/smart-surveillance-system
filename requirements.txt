@@ -3,3 +3,4 @@ torchvision
 torchaudio
 opencv-contrib-python
 ultralytics
+fvcore
