@@ -57,14 +57,15 @@ class VideoDataset(Dataset):
         """
         video=self.videos[idx]
 
+        video = self.__pad_or_truncate(video)
+
         frames = []
         label = video[0]["label"]
 
         for frame in video:
-            image, _, _, _ = self.frame_dataset[frame["index"]]
+            image = self.frame_dataset[frame["index"]][0]
             frames.append(image)
             
-        frames = self.__pad_or_truncate(frames)
         frames = torch.stack(frames)
     
         return frames, label

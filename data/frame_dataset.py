@@ -34,7 +34,7 @@ class FrameDataset(Dataset):
                 if match:
                     part_number, frame_idx = match.groups()
                     frame_idx = int(frame_idx)
-                    self.dataset({"label": label, "part_number": part_number, "image": image, "frame_idx": frame_idx, "index": index})
+                    self.dataset.append({"label": label, "part_number": part_number, "image": image, "frame_idx": frame_idx, "index": index})
                     index += 1
 
     def __len__(self):
