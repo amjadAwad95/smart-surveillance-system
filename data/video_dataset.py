@@ -1,7 +1,6 @@
 import torch
 from torch.utils.data import Dataset
-from itertools import groupby
-
+from collections import defaultdict
 
 
 class VideoDataset(Dataset):
@@ -17,13 +16,12 @@ class VideoDataset(Dataset):
         """
         self.frame_dataset = frame_dataset
         self.max_frames = max_frames
-        self.videos = []
+        video_dict = defaultdict(list)
 
-        for _, video_group in groupby(frame_dataset.dataset, key=lambda x: (x['label'], x['part_number'])):
-            self.videos.append(list(video_group))
+        for frame in frame_dataset.dataset:
+            video_dict[(frame['label'], frame['part_number'])].append(frame)
 
-        for idx, video in enumerate(self.videos):
-            self.videos[idx] = sorted(video, key=lambda x: x['frame_idx'])
+        self.videos = [sorted(value, key=lambda x:x['frame_idx']) for value in video_dict.values()]
         
 
     def __len__(self):
