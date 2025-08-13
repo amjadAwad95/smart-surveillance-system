@@ -6,3 +6,4 @@ ultralytics
 fvcore
 pytorchvideo
 torchsummary
+wandb
