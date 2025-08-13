@@ -210,3 +210,7 @@ __marimo__/
 data/dataset
 
 .idea
+
+wandb
+
+pretrain
