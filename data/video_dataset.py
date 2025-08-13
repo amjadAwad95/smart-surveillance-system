@@ -8,7 +8,7 @@ class VideoDataset(Dataset):
     VideoDataset is a PyTorch Dataset that groups frames into videos based on labels and part numbers.
     Each video is padded or truncated to a fixed number of frames.
     """
-    def __init__(self, frame_dataset, max_frames=128):
+    def __init__(self, frame_dataset, max_frames=16):
         """
         Initializes the VideoDataset.
         :param frame_dataset: An instance of FrameDataset containing the frames.
@@ -41,9 +41,10 @@ class VideoDataset(Dataset):
         length = len(frames)
 
         if length > self.max_frames:
-            return frames[:self.max_frames]
+            indices = np.linspace(0, length - 1, self.max_frames, dtype=int)
+            return [frames[i] for i in indices]
         elif length < self.max_frames:
-            padding =[frames[-1]] * (self.max_frames - length)
+            padding = [frames[-1]] * (self.max_frames - length)
             return frames + padding
         
         return frames
@@ -56,7 +57,6 @@ class VideoDataset(Dataset):
         :return: A tuple containing a tensor of frames and the label.
         """
         video=self.videos[idx]
-
         video = self.__pad_or_truncate(video)
 
         frames = []
@@ -67,6 +67,5 @@ class VideoDataset(Dataset):
             frames.append(image)
             
         frames = torch.stack(frames)
-    
         return frames, label
         
