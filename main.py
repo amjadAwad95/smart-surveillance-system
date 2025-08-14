@@ -1,25 +1,11 @@
-from torch.utils.data import DataLoader
-from data import VideoDataset, FrameDataset
-from utils import image_transform
+from inferences.ucf_inference import UCFInferenceFromPath
 
+video_path = "Fighting013_x264A.mp4"
+repo_id = "amjad-awad/ucf-i3d-model-by-block-lr-0.001"
+max_frames = 16
 
-main_path = "data/dataset/train"
+ucf_inference = UCFInferenceFromPath(repo_id=repo_id)
 
-print("Loading FrameDataset...")
-frame_dataset = FrameDataset(main_path=main_path, transform=image_transform)
-print("FrameDataset loaded with", len(frame_dataset), "frames.")
+label = ucf_inference.inference(video_path=video_path, max_frames=max_frames)
 
-
-print("Creating VideoDataset...")
-video_dataset = VideoDataset(frame_dataset)
-print("VideoDataset created with", len(video_dataset), "videos.")
-
-
-print("Creating DataLoader for VideoDataset...")
-video_dataloader = DataLoader(video_dataset, batch_size=4, shuffle=True)
-print("DataLoader created.")
-
-
-for images, labels in video_dataloader:
-    print(images.shape, labels)
-    break 
+print("Crime" if label else "Not Crime")
