@@ -2,3 +2,10 @@ torch
 torchvision
 torchaudio
 opencv-contrib-python
+ultralytics
+fvcore
+pytorchvideo
+torchsummary
+wandb
+scikit-learn
+huggingface_hub

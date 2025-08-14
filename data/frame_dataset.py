@@ -19,72 +19,23 @@ class FrameDataset(Dataset):
         self.main_path = main_path
         self.transform = transform
 
-        self.regex_patterns = [
-            re.compile(r"([A-Za-z]+[0-9]+_x[0-9]+)_(\d+)\.png"),
-            re.compile(r"([A-Za-z]+_[A-Za-z]+[0-9]+_x[0-9]+)_(\d+)\.png"),
-            re.compile(r"([A-Za-z]+_[A-Za-z]+_[0-9]+_x[0-9]+)_(\d+)\.png"),
-        ]
+        FILENAME_PATTERN = re.compile(r".*?(\d+)_x\d+_(\d+)\.png$")
 
         self.dataset = []
 
-        paths = [f"{main_path}/{label}" for label in os.listdir(main_path)]
+        labels = [label for label in os.listdir(main_path)]
 
         index = 0
 
-        for path in paths:
-            label = path.split("/")[-1]
-
+        for label in labels:
+            path = f"{main_path}/{label}"
             for image in os.listdir(path):
-                for pattern in self.regex_patterns:
-                    match = pattern.match(image)
-                    if match:
-                        underscore_count = image.count("_")
-                        if underscore_count == 2:
-                            split = image.split("_")
-                            part = split[0]
-                            part_number = re.findall(r"\d+", part)[0]
-                            frame_idx = int(split[-1].replace(".png", ""))
-                            self.dataset.append(
-                                {
-                                    "label": label,
-                                    "part_number": part_number,
-                                    "image": image,
-                                    "frame_idx": frame_idx,
-                                    "index": index,
-                                }
-                            )
-                            index += 1
-                        elif underscore_count == 3:
-                            split = image.split("_")
-                            part = split[1]
-                            part_number = re.findall(r"\d+", part)[0]
-                            frame_idx = int(split[-1].replace(".png", ""))
-                            self.dataset.append(
-                                {
-                                    "label": label,
-                                    "part_number": part_number,
-                                    "image": image,
-                                    "frame_idx": frame_idx,
-                                    "index": index,
-                                }
-                            )
-                            index += 1
-                        else:
-                            split = image.split("_")
-                            part = split[2]
-                            part_number = part
-                            frame_idx = int(split[-1].replace(".png", ""))
-                            self.dataset.append(
-                                {
-                                    "label": label,
-                                    "part_number": part_number,
-                                    "image": image,
-                                    "frame_idx": frame_idx,
-                                    "index": index,
-                                }
-                            )
-                            index += 1
-                        break
+                match = FILENAME_PATTERN.match(image)
+                if match:
+                    part_number, frame_idx = match.groups()
+                    frame_idx = int(frame_idx)
+                    self.dataset.append({"label": label, "part_number": part_number, "image": image, "frame_idx": frame_idx, "index": index})
+                    index += 1
 
     def __len__(self):
         """
