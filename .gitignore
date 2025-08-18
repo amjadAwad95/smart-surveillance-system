@@ -215,3 +215,7 @@ data/DCSASS
 wandb
 
 pretrain
+
+kinetics_classnames.json
+
+yolov8*
