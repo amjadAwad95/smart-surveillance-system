@@ -6,6 +6,7 @@ from models import UCFModel
 from utils import inference_transform
 from .base_inference import BaseInference
 from huggingface_hub import hf_hub_download
+from transformers import AutoModelForVideoClassification, AutoProcessor
 
 
 class UCFInferenceFromPath(BaseInference):
@@ -112,3 +113,128 @@ class UCFInferenceFromPath(BaseInference):
             output = self.model(video_tensor)
 
         return output.argmax(1)
+
+
+class UCFInferenceByFrames(BaseInference):
+    """
+    Performs video classification inference using a pretrained UCFModel
+    loaded from the Hugging Face Hub.
+
+    This class works with a list of video frames instead of a video path.
+    It preprocesses the frames, stacks them into a tensor, and runs the
+    UCFModel to obtain predictions.
+    """
+
+    def __init__(self, repo_id):
+        """
+        Initializes the UCFInferenceByFrames object.
+
+        :param repo_id: Hugging Face Hub repository ID containing the
+                        pretrained model checkpoint file `ucf_model.pth`.
+        """
+        self.repo_id = repo_id
+
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = self.load_model()
+
+    def load_model(self):
+        """
+        Loads the pretrained UCFModel from the Hugging Face Hub.
+
+        :return: The loaded UCFModel in evaluation mode.
+        """
+        model_path = hf_hub_download(repo_id=self.repo_id, filename="ucf_model.pth")
+        state_dict = torch.load(model_path)
+
+        model = UCFModel(inference=True).to(device=self.device)
+        model.load_state_dict(state_dict)
+        model.eval()
+
+        return model
+
+    def inference(self, frames):
+        """
+        Performs inference on a list of video frames.
+
+        Steps:
+        1. Converts each frame to a PIL image.
+        2. Applies preprocessing transform.
+        3. Stacks all frames into a tensor suitable for the model.
+        4. Runs inference using the pretrained UCFModel.
+        5. Returns the predicted class index.
+
+        :param frames: List of frames (each as a NumPy array in RGB format).
+        :return: Predicted class index as a tensor (0 or 1).
+        """
+        video_tensor_list = []
+        for frame in frames:
+            frame_pil = Image.fromarray(frame)
+            frame_tensor = inference_transform(frame_pil)
+            video_tensor_list.append(frame_tensor)
+
+        video_tensor = torch.stack(video_tensor_list)
+        video_tensor = video_tensor.permute(1, 0, 2, 3).unsqueeze(0).float()
+
+        video_tensor = video_tensor.to(self.device)
+
+        with torch.no_grad():
+            output = self.model(video_tensor)
+
+        return output.argmax(1)
+
+
+class HuggingfaceInferenceByFrames(BaseInference):
+    """
+    Performs video classification inference using a Hugging Face
+    pretrained video classification model.
+
+    This class uses Hugging Face Transformers' AutoModelForVideoClassification
+    and AutoProcessor to process raw frames and produce predictions.
+    """
+
+    def __init__(self, repo_id):
+        """
+        Initializes the HuggingfaceInferenceByFrames object.
+
+        :param repo_id: Hugging Face Hub repository ID containing the
+                        pretrained video classification model.
+        """
+        self.repo_id = repo_id
+
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model, self.processor = self.load_model()
+
+    def load_model(self):
+        """
+        Loads the Hugging Face video classification model and processor.
+
+        :return: A tuple (model, processor).
+        """
+        model = AutoModelForVideoClassification.from_pretrained(self.repo_id).to(
+            self.device
+        )
+        processor = AutoProcessor.from_pretrained(self.repo_id)
+
+        return model, processor
+
+    def inference(self, frames):
+        """
+        Performs inference on a list of video frames.
+
+        Steps:
+        1. Processes the frames using the Hugging Face processor.
+        2. Runs the model in evaluation mode without gradient computation.
+        3. Applies softmax to obtain prediction probabilities.
+        4. Returns the predicted class index.
+
+        :param frames: List of frames (each as a NumPy array in RGB format).
+        :return: Predicted class index as an integer.
+        """
+        inputs = self.processor(frames, return_tensors="pt").to(self.device)
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            predictions = torch.nn.functional.softmax(outputs.logits, dim=-1)
+            predicted_class = torch.argmax(predictions, dim=-1).item()
+
+        return predicted_class
