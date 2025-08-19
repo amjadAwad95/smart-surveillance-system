@@ -208,9 +208,14 @@ __marimo__/
 
 
 data/dataset
+data/DCSASS
 
 .idea
 
 wandb
 
 pretrain
+
+kinetics_classnames.json
+
+yolov8*

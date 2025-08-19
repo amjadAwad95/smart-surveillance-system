@@ -1,11 +1,29 @@
-from inferences.ucf_inference import UCFInferenceFromPath
+from inferences import (
+    HuggingfaceInferenceByFrames,
+    I3DInferenceByFrames,
+    UCFInferenceByFrames,
+    YOLOInference,
+)
+from pipeline import RealTimeVideoProcessorWithTerminal
 
-video_path = "Fighting013_x264A.mp4"
-repo_id = "amjad-awad/ucf-i3d-model-by-block-lr-0.001"
-max_frames = 16
+yolo_inference = YOLOInference()
+ucf_inference = HuggingfaceInferenceByFrames(
+    "Nikeytas/videomae-crime-detector-ultra-v1"
+)
+# ucf_inference = UCFInferenceByFrames("amjad-awad/ucf-i3d-model-by-block-lr-0.001")
+normal_inference = I3DInferenceByFrames()
 
-ucf_inference = UCFInferenceFromPath(repo_id=repo_id)
 
-label = ucf_inference.inference(video_path=video_path, max_frames=max_frames)
+video_path = "videoplayback.mp4"
 
-print("Crime" if label else "Not Crime")
+processor = RealTimeVideoProcessorWithTerminal(
+    video_path,
+    yolo_inference,
+    ucf_inference,
+    normal_inference,
+    frame_skip=1,
+    buffer_size=16,
+    # beep=True,
+)
+
+processor.start_processing()
