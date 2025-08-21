@@ -10,3 +10,4 @@ wandb
 scikit-learn
 huggingface_hub
 deep-sort-realtime
+streamlit

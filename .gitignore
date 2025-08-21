@@ -209,6 +209,7 @@ __marimo__/
 
 data/dataset
 data/DCSASS
+logs
 
 .idea
 
