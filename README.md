@@ -81,6 +81,34 @@ We evaluated the Smart Surveillance System using popular metrics such as **accur
 - Block-level tuning with appropriate learning rates also performed well, demonstrating that partial fine-tuning can be effective.  
 - Higher learning rates (e.g., 0.01) negatively impacted performance, indicating the model benefits from careful tuning.
 
+## How to Run Locally
+
+1. Clone the repository:
+
+```
+git clone https://github.com/amjadAwad95/smart-surveillance-system.git
+cd smart-surveillance-system
+```
+
+2. Create a virtual environment:
+
+```
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+3. Install the dependencies:
+
+```
+pip install -r requirements.txt
+```
+
+4. Run the app
+
+```
+streamlit run main.py
+```
+
 ## Conclusion
 
 The Smart Surveillance System demonstrates the effective integration of AI-powered models for real-time security monitoring. By combining I3D-based action recognition with YOLO object detection and DeepSORT tracking, the system can accurately identify both normal and suspicious human activities in public spaces such as malls, hospitals, schools, and offices.  
