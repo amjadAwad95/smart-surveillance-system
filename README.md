@@ -2,6 +2,8 @@
 
 This project focuses on developing an intelligent security system designed for environments such as malls, hospitals, schools, and offices. The system automatically monitors surroundings and detects unsafe or suspicious human activities, enhancing safety and security.
 
+[![Report](https://img.shields.io/badge/Smart_Surveillance_System-gray?logo=weightsandbiases&logoColor=yellow)](https://api.wandb.ai/links/smart-surveillance-system/7lex8cgy)
+
 ## Abstraction
 
 The Smart Surveillance System is an AI-powered application developed to enhance safety in public spaces. It helps security teams by providing intelligent monitoring tools, enabling them to quickly identify and manage potential threats or suspicious activities.
